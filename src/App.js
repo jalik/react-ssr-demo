@@ -1,8 +1,23 @@
-import React from 'react';
+import React, {
+  useEffect,
+  useState,
+} from 'react';
 
 // import './App.css';
 
 function App() {
+  const [time, setTime] = useState(new Date());
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
   return (
     <div className="App">
       <header className="App-header">
@@ -11,9 +26,6 @@ function App() {
           className="App-logo"
           alt="logo"
         />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
         <a
           className="App-link"
           href="https://reactjs.org"
@@ -22,6 +34,12 @@ function App() {
         >
           Learn React
         </a>
+        <p>Date: {time.toLocaleString()}</p>
+        <p>
+          <button onClick={() => setCount((s) => s + 1)}>
+            Counter: {count}
+          </button>
+        </p>
       </header>
     </div>
   );

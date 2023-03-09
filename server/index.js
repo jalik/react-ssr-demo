@@ -1,32 +1,50 @@
-import express from 'express';
+import fastifyStatic from '@fastify/static';
+import fastify from 'fastify';
 import fs from 'fs';
 import path from 'path';
-
 import React from 'react';
-import ReactDOMServer from 'react-dom/server';
-
+import { renderToString } from 'react-dom/server';
 import App from '../src/App';
 
-const PORT = process.env.PORT || 3006;
-const app = express();
+const app = fastify();
 
-app.get('/', (req, res) => {
-  const render = ReactDOMServer.renderToString(<App />);
-  const indexFile = path.resolve('./build/index.html');
+app.get('/', async (req, rep) => {
+  try {
+    const indexFile = path.resolve(path.join('build', 'index.html'));
+    const indexHtml = await fs.promises.readFile(indexFile, 'utf8');
 
-  fs.readFile(indexFile, 'utf8', (err, data) => {
-    if (err) {
-      console.error('Something went wrong:', err);
-      return res.status(500).send('Oops, better luck next time!');
-    }
-    return res.send(
-      data.replace('<div id="root"></div>', `<div id="root">${render}</div>`),
+    // Generate static HTML.
+    const content = renderToString(<App />);
+    let html = indexHtml.replace(
+      '<div id="root"></div>',
+      `<div id="root">${content}</div>`,
     );
-  });
+
+    // Append scripts.
+    // const jsFiles = await glob(path.join('build', 'static', 'js', '*.js'));
+    // jsFiles.forEach((file) => {
+    //   html += `<script src="static/js/${path.basename(file)}"></script>`;
+    // });
+
+    return rep
+      .status(200)
+      .type('text/html')
+      .send(html);
+  } catch (err) {
+    console.error('Something went wrong:', err);
+    return rep
+      .status(500)
+      .send('Oops, better luck next time!');
+  }
 });
 
-app.use(express.static('./build'));
+// Serve static files.
+const staticPath = path.resolve(path.join('build'));
+app.register(fastifyStatic, { root: staticPath });
+console.log('Serving static files in', staticPath);
 
-app.listen(PORT, () => {
-  console.log(`Server is listening on port ${PORT}`);
+// Start server.
+const port = process.env.PORT || 8080;
+app.listen({ port }).then(() => {
+  console.log(`Listening on port ${port}`);
 });

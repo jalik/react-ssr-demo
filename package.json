@@ -3,17 +3,21 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@fastify/static": "^6.9.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
     "express": "^4.17.1",
+    "fastify": "^4.14.1",
+    "glob": "^9.2.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1"
   },
   "scripts": {
     "dev:build-server": "NODE_ENV=development webpack --config webpack.server.js --mode=development -w",
-    "dev:start": "nodemon ./server-build/index.js",
+    "dev:start-server": "nodemon ./server-build/index.js",
+    "dev:build-client": "react-scripts build",
     "dev": "npm-run-all --parallel build dev:*",
     "start": "react-scripts start",
     "build": "react-scripts build",
